@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>楼层</title>
+    <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            
+            ul,
+            li {
+                list-style: none;
+            }
+            
+            div {
+                width: 100%;
+                height: 500px;
+                line-height: 500px;
+                font-size: 100px;
+                color: aliceblue;
+                text-align: center
+                /* border: 1px solid #ccc; */
+            }
+            
+            #side-nav {
+                position: fixed;
+                left: 10px;
+                top: 5px;
+            }
+            
+            #side-nav li {
+                width: 60px;
+                height: 60px;
+                line-height: 60px;
+                font-weight: 900;
+                text-align: center;
+                background-color: #fff;
+                border-radius: 10px;
+                box-shadow: 2px 1px 3px 0 rgb(26, 25, 25);
+                cursor: pointer;
+                margin-bottom: 10px;
+            }
+            
+            .yellow {
+                background-color: yellow !important;
+            }
+            
+            #box1 {
+                background-color: red;
+            }
+            
+            #box2 {
+                background-color: lightgreen;
+            }
+            
+            #box3 {
+                background-color: lightskyblue;
+            }
+            
+            #box4 {
+                background-color: lawngreen;
+            }
+            
+            #box5 {
+                background-color: lightcoral;
+            }
+            
+            #box6 {
+                background-color: lightskyblue;
+            }
+            
+            #box7 {
+                background-color: red;
+            }
+            
+            #box8 {
+                background-color: lawngreen;
+            }
+            
+            #box9 {
+                background-color: lightcoral;
+            }
+            
+            #box10 {
+                background-color: lightgreen;
+            }
+        </style>
+</head>
+<body>
+        <div id="box">
+                <div id="box1">A</div>
+                <div id="box2">B</div>
+                <div id="box3">C</div>
+                <div id="box4">D</div>
+                <div id="box5">E</div>
+                <div id="box6">F</div>
+                <div id="box7">G</div>
+                <div id="box8">H</div>
+                <div id="box9">I</div>
+                <div id="box10">J</div>
+            </div>
+            <nav>
+                <ul id="side-nav">
+                    <li class="yellow">F1</li>
+                    <li>F2</li>
+                    <li>F3</li>
+                    <li>F4</li>
+                    <li>F5</li>
+                    <li>F6</li>
+                    <li>F7</li>
+                    <li>F8</li>
+                    <li>F9</li>
+                    <li>F10</li>
+                </ul>
+            </nav>
+            <script>
+                window.onload = function(){
+                     /*
+                    
+                    需求：楼层跳跃
+                        *　把楼层的高度设置成屏幕的高度
+                        * 点击按钮可以跳转到对应楼层
+                        * 滚动滑轮，到达临界点的时候，按钮跟着高亮显示
+                */
+                class Manager{
+                    constructor(){
+                    this.box = document.querySelector("#box");
+                    this.navbox = document.querySelector("#side-nav");
+                    this.win = window;
+                    }
+                    init(){
+                        //把div宽度设成屏幕宽度
+                        this.renderUI();
+                        // 点击对应的按钮跳到对应的楼层（取步长）
+                        this.clicknav()
+                        //导航栏同步显示高亮
+                        this.navsynchronous()
+                    }
+                    navsynchronous(){
+                     window.onscroll =()=>{
+                      let boxchild = this.box.querySelectorAll("div");
+                      let navchild = this.navbox.querySelectorAll("li");
+                      let scrolltop = window.scrollY;
+                      for(let i = 0;i<boxchild.length;i++){
+                          if(scrolltop >= boxchild[i].offsetTop){
+                            // 排他 
+                              for(let j = 0;j<navchild.length;j++){
+                                  navchild[j].classList.remove("yellow");
+                              }
+                            //  设置高亮
+                            navchild[i].classList="yellow";
+                          }
+                      }
+                      
+                    }
+                    }
+                    clicknav(){
+                     var navchild = this.navbox.querySelectorAll("li");
+                     var boxchild = this.box.querySelectorAll("div");
+                     let timer = null;
+                     var learder = 0;
+                     for(var i = 0; i<navchild.length;i++){
+                         navchild[i].index = i;
+                         navchild[i].onclick = function(){
+                            for(var j = 0;j<navchild.length;j++){
+                                navchild[j].classList.remove("yellow");
+                            }
+                            this.classList = 'yellow';
+
+                            //设置目标值
+                            let target = boxchild[this.index].offsetTop;
+
+                            // 先清理一次定时器
+                           clearInterval(timer);
+                           timer = setInterval(function(){
+                            // 获取步长
+                            let step = (target-learder)/10;
+                            // 二次处理步长
+                            step = step>0? Math.ceil(step):Math.floor(step);
+                            //屏幕滚动
+                            learder = learder + step;
+                            window.scrollTo(0,learder);
+                            //判断最后一次步长(差一点点像素到指定目标（1 <= 1),直接当前位置等于目标值
+                            if(Math.abs(target-learder) <= Math.abs(step)){
+                                window.scrollTo(0,target);
+                                clearInterval(timer);
+                            }
+                           },25);
+                         }
+                     }
+                    //把屏幕卷入的部分作为页面的起始值
+                      window.onscroll = function (){
+                          console.log("zhouyonghuan");
+                          learder = scroll().top;
+                      }
+                        function scroll(){   
+                            return {
+                                "top": window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop,
+                                "left":  window.pageXOffset || document.body.scrollLeft || document.documentElement.scrollLeft 
+                            }
+                        }
+                    }
+                    renderUI(){
+                     var boxchild = this.box.querySelectorAll("div");
+                     for(var i = 0;i<boxchild.length;i++){
+                         boxchild[i].style.height = window.innerHeight + "px"; 
+                     } 
+                    }
+                }
+            manager = new Manager();
+            manager.init();
+            }
+    </script>
+</body>
+</html>
